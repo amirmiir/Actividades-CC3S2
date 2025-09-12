@@ -35,8 +35,8 @@ APP_DIR="${APP_DIR:-$ROOT_DIR/miapp}"
 VENV="$APP_DIR/.venv"
 EVID="$ROOT_DIR/evidencias"
 CERT_DIR="$ROOT_DIR/certs"
-NGINX_SITE="/etc/nginx/conf.d/miapp.conf"
-NGINX_LINK="/etc/nginx/conf.d/miapp.conf"
+NGINX_SITE="/etc/nginx/sites-available/miapp.conf"
+NGINX_LINK="/etc/nginx/sites-enabled/miapp.conf"
 SYS_ENV="/etc/default/miapp"
 SYS_UNIT="/etc/systemd/system/miapp.service"
 
@@ -234,6 +234,14 @@ nginx_setup(){
   ensure_pkg nginx
   tls_cert
 
+  # Crear estructura sites-available/sites-enabled para EndeavourOS
+  sudo mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
+  
+  # Agregar include si no existe
+  if ! sudo grep -q "include /etc/nginx/sites-enabled/\*;" /etc/nginx/nginx.conf; then
+    sudo sed -i '/http {/a\    include /etc/nginx/sites-enabled/*;' /etc/nginx/nginx.conf
+  fi
+
   local crt="$CERT_DIR/$DOMAIN.crt"
   local key="$CERT_DIR/$DOMAIN.key"
 
@@ -265,8 +273,9 @@ server {
 }
 NGX
 
-  # Arch/EndeavourOS uses conf.d directly, no symlink needed
-  log "Nginx config written to $NGINX_SITE"
+  if [[ ! -e "$NGINX_LINK" ]]; then
+    sudo ln -s "$NGINX_SITE" "$NGINX_LINK" || true
+  fi
 
   log "Validando configuración: nginx -t"
   sudo nginx -t 2> "$EVID/4--12-nginx-test.txt" || { err "nginx -t falló"; exit 1; }
@@ -415,7 +424,7 @@ clean(){
   warn "Limpiando archivos generados (se conservan certs y evidencias)"
   rm -rf "$APP_DIR/.venv" || true
   rm -f "$APP_DIR/app.py" "$APP_DIR/app.pid" || true
-  # Remove nginx config file directly in Arch/EndeavourOS
+  if [[ -L "$NGINX_LINK" ]]; then sudo rm -f "$NGINX_LINK"; fi
   if [[ -f "$NGINX_SITE" ]]; then sudo rm -f "$NGINX_SITE"; fi
   if is_systemd && [[ -f "$SYS_UNIT" ]]; then
     sudo systemctl disable --now miapp || true

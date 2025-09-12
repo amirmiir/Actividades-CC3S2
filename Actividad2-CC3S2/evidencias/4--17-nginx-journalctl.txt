@@ -1,0 +1,7 @@
+set 12 16:18:09 zenbook14-aacg-EndOS systemd[1]: Starting nginx web server...
+set 12 16:18:09 zenbook14-aacg-EndOS nginx[634535]: 2025/09/12 16:18:09 [warn] 634535#634535: could not build optimal types_hash, you should increase either types_hash_max_size: 1024 or types_hash_bucket_size: 64; ignoring types_hash_bucket_size
+set 12 16:18:09 zenbook14-aacg-EndOS systemd[1]: Started nginx web server.
+set 12 16:33:54 zenbook14-aacg-EndOS systemd[1]: Reloading nginx web server...
+set 12 16:33:54 zenbook14-aacg-EndOS nginx[645911]: 2025/09/12 16:33:54 [warn] 645911#645911: could not build optimal types_hash, you should increase either types_hash_max_size: 1024 or types_hash_bucket_size: 64; ignoring types_hash_bucket_size
+set 12 16:33:54 zenbook14-aacg-EndOS nginx[645911]: 2025/09/12 16:33:54 [notice] 645911#645911: signal process started
+set 12 16:33:54 zenbook14-aacg-EndOS systemd[1]: Reloaded nginx web server.
